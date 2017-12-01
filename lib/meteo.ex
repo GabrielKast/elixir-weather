@@ -4,13 +4,13 @@ defmodule Meteo do
   fetch meteo by town
   """
 
-  @doc """
-  main function called at startup.
-  """
-
   require Logger
 
   
+  @doc """
+  main function called at startup.
+  Call it with one string in an array
+  """
   def main(args) do
     args
     |> parse_args
@@ -23,11 +23,19 @@ defmodule Meteo do
 
   def parse_args args do
     cond do
+      is_binary(args)  ->
+	case String.length args do
+	  n when n<2 ->
+	    raise "The name mus t be valid"
+	  _ ->
+	    args
+	end
       length(args)==0 ->
 	raise "Give the name of a city. eg : ./meteo auxerre"
       length(args)>1 ->
 	raise "Give the name of a city. eg : ./meteo auxerre"
-      true -> hd(args)
+      is_list(args) ->
+	hd(args)
     end
   end
 
@@ -56,8 +64,8 @@ defmodule Meteo do
   end
   
   def display_result %{"errors" => [%{"description" => description}]} = result do
-    Logger.info inspect(result_with_errors: result)
     IO.puts "Erreur dans les resultats : #{description}"
+    Logger.info inspect(result_with_errors: result)
   end
   def display_result result do
     Logger.debug inspect(result: result)
